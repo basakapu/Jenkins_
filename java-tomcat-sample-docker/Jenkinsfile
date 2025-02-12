@@ -1,44 +1,25 @@
 pipeline {
-    agent {
-        docker { 
-            image 'node:latest' // Use a proper Docker image with Maven
-            args '--network=host' // Optional: Helps with networking
-        }
-    }
-
-    environment {
-        DOCKER_HOST = "tcp://192.168.122.5:2375" // Define remote Docker daemon
-    }
-
+    agent any
     stages {
-        stage('Init') {
+        stage('Build Application') {
             steps {
-                echo 'Hi, this is Anshul from LevelUp360'
-                echo 'We are Starting the Testing'
+                sh 'mvn -f java-tomcat-sample/pom.xml clean package'
+            }
+            post {
+                success {
+                    echo "Now Archiving the Artifacts...."
+                    archiveArtifacts artifacts: '**/*.war'
+                }
             }
         }
-        
-        stage('Build') {
+
+        stage('Create Tomcat Docker Image'){
             steps {
-                echo 'Building Sample Maven Project'
-                sh 'mvn -f java-tomcat-sample/pom.xml clean package' // Example Maven build
+                sh "pwd"
+                sh "ls -a"
+                sh "docker build ./java-tomcat-sample-docker -t tomcatsamplewebapp:${env.BUILD_ID}"
             }
         }
-        
-        stage('Deploy') {
-            steps {
-                echo "Deploying in Staging Area"
-                // Example: Deploy the WAR file to a Staging Server
-                // sh 'scp target/*.war user@staging-server:/path/to/tomcat/webapps/'
-            }
-        }
-        
-        stage('Deploy Production') {
-            steps {
-                echo "Deploying in Production Area"
-                // Example: Deploy the WAR file to a Production Server
-                // sh 'scp target/*.war user@prod-server:/path/to/tomcat/webapps/'
-            }
-        }
+
     }
 }
