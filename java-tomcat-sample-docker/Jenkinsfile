@@ -1,5 +1,6 @@
 pipeline {
     agent any
+
     stages {
         stage('Build Application') {
             steps {
@@ -13,13 +14,21 @@ pipeline {
             }
         }
 
-        stage('Create Tomcat Docker Image'){
+        stage('Create Tomcat Docker Image') {
             steps {
                 sh "pwd"
                 sh "ls -a"
-                sh "docker build ./java-tomcat-sample-docker -t tomcatsamplewebapp:${env.BUILD_ID}"
+                sh "docker build -t tomcatsamplewebapp:${env.BUILD_ID} -t tomcatsamplewebapp:latest ./java-tomcat-sample-docker"
             }
         }
 
+        steps {
+                withCredentials([string(credentialsId: 'docker-hub-credentials', variable: 'DOCKER_PASS')]) {
+                    sh "echo $DOCKER_PASS | docker login -u your-docker-username --password-stdin"
+                    sh "docker tag tomcatsamplewebapp:${env.BUILD_ID} your-docker-username/tomcatsamplewebapp:${env.BUILD_ID}"
+                    sh "docker push your-docker-username/tomcatsamplewebapp:${env.BUILD_ID}"
+                    sh "docker push your-docker-username/tomcatsamplewebapp:latest"
+                }
+        }
     }
 }
