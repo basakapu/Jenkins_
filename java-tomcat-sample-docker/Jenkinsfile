@@ -1,8 +1,15 @@
 pipeline {
-    agent any
-        environment {
-            DOCKER_HOST = "tcp://192.168.122.5:2375" // Define remote Docker daemon
+    agent {
+        docker { 
+            image 'node:latest' // Use a proper Docker image with Maven
+            args '--network=host' // Optional: Helps with networking
+        }
     }
+
+    environment {
+        DOCKER_HOST = "tcp://192.168.122.5:2375" // Define remote Docker daemon
+    }
+
     stages {
         stage('Init') {
             steps {
