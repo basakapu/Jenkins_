@@ -1,12 +1,7 @@
 pipeline {
-    agent {
-        docker { 
-            args '--network=host' // Optional: Helps with networking
-        }
-    }
-
-    environment {
-        DOCKER_HOST = "tcp://192.168.122.5:2375" // Define remote Docker daemon
+    agent any
+        environment {
+            DOCKER_HOST = "tcp://192.168.122.5:2375" // Define remote Docker daemon
     }
     stages {
         stage('Init') {
