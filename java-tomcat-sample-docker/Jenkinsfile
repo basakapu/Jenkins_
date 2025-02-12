@@ -1,34 +1,43 @@
 pipeline {
     agent {
         docker { 
-            image 'maven:3.8.5-openjdk-11'  // Using a proper Maven Docker image
-            args '--network=host' // Optional: Allows Docker networking
-        } 
+            args '--network=host' // Optional: Helps with networking
+        }
     }
+
     environment {
         DOCKER_HOST = "tcp://192.168.122.5:2375" // Define remote Docker daemon
     }
-      stages {
-            stage('Init') {
-                  steps {
-                        echo 'Hi, this is Anshul from LevelUp360'
-                        echo 'We are Starting the Testing'
-                  }
+
+    stages {
+        stage('Init') {
+            steps {
+                echo 'Hi, this is Anshul from LevelUp360'
+                echo 'We are Starting the Testing'
             }
-            stage('Build') {
-                  steps {
-                        echo 'Building Sample Maven Project'
-                  }
+        }
+        
+        stage('Build') {
+            steps {
+                echo 'Building Sample Maven Project'
+                sh 'mvn -f java-tomcat-sample/pom.xml clean package' // Example Maven build
             }
-            stage('Deploy') {
-                  steps {
-                        echo "Deploying in Staging Area"
-                  }
+        }
+        
+        stage('Deploy') {
+            steps {
+                echo "Deploying in Staging Area"
+                // Example: Deploy the WAR file to a Staging Server
+                // sh 'scp target/*.war user@staging-server:/path/to/tomcat/webapps/'
             }
-            stage('Deploy Production') {
-                  steps {
-                        echo "Deploying in Production Area"
-                  }
+        }
+        
+        stage('Deploy Production') {
+            steps {
+                echo "Deploying in Production Area"
+                // Example: Deploy the WAR file to a Production Server
+                // sh 'scp target/*.war user@prod-server:/path/to/tomcat/webapps/'
             }
-      }
+        }
+    }
 }
